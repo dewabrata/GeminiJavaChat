@@ -1,0 +1,94 @@
+# Dockerignore untuk Gemini Chatbot CLI
+# Exclude files yang tidak diperlukan untuk build
+
+# Target directory (compiled files)
+target/
+!target/dependency/
+
+# IDE files
+.vscode/
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Git
+.git/
+.gitignore
+
+# Logs
+logs/
+*.log
+
+# Environment files (kecuali .env.example)
+.env
+.env.local
+.env.production
+.env.development
+
+# Docker files (tidak perlu di dalam container)
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+
+# Maven
+.mvn/
+mvnw
+mvnw.cmd
+
+# Test reports
+surefire-reports/
+failsafe-reports/
+
+# Coverage reports
+jacoco.exec
+coverage/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.temp
+*.swp
+*.swo
+
+# Documentation
+README.md
+docs/
+*.md
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+Jenkinsfile
+
+# Node modules (jika ada frontend)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Backup files
+*.bak
+*.backup
+*.old
+
+# Archive files
+*.zip
+*.tar.gz
+*.rar
+
+# Large binary files
+*.exe
+*.dmg
+*.pkg
+
+# Development scripts
+run.sh
+run.bat
+run-java.bat

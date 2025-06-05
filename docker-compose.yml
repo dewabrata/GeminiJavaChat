@@ -1,0 +1,111 @@
+# Docker Compose untuk Gemini Chatbot CLI
+# Supports both production dan development environments
+
+version: '3.8'
+
+services:
+  # Production service
+  gemini-chatbot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runtime
+    image: gemini-chatbot:latest
+    container_name: gemini-chatbot-prod
+    restart: unless-stopped
+    stdin_open: true
+    tty: true
+    environment:
+      - APP_ENV=production
+      - JAVA_OPTS=-Xmx512m -Xms256m
+    env_file:
+      - .env
+    volumes:
+      # Mount .env file untuk config
+      - ./.env:/app/.env:ro
+      # Mount logs directory (optional)
+      - ./logs:/app/logs
+    networks:
+      - gemini-network
+    profiles:
+      - production
+    healthcheck:
+      test: ["CMD", "/usr/local/bin/docker-entrypoint.sh", "--health-check"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # Development service
+  gemini-chatbot-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    image: gemini-chatbot:dev
+    container_name: gemini-chatbot-dev
+    restart: unless-stopped
+    stdin_open: true
+    tty: true
+    environment:
+      - APP_ENV=development
+      - JAVA_OPTS=-Xmx1g -Xms512m -XX:+UseG1GC
+      - MAVEN_OPTS=-XX:+TieredCompilation -XX:TieredStopAtLevel=1
+    env_file:
+      - .env
+    volumes:
+      # Mount source code untuk hot reload
+      - ./src:/app/src
+      - ./pom.xml:/app/pom.xml
+      - ./.env:/app/.env:ro
+      # Maven repository cache
+      - maven-cache:/root/.m2
+      # Target directory untuk compiled classes
+      - ./target:/app/target
+      # Logs
+      - ./logs:/app/logs
+    ports:
+      # Debug port untuk remote debugging
+      - "5005:5005"
+    networks:
+      - gemini-network
+    profiles:
+      - development
+    working_dir: /app
+    command: >
+      bash -c "
+        echo 'Starting development server...';
+        mvn compile exec:java -Dexec.mainClass=com.juaracoding.cicd.Main
+      "
+
+  # Testing service
+  gemini-chatbot-test:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    image: gemini-chatbot:test
+    container_name: gemini-chatbot-test
+    environment:
+      - APP_ENV=test
+      - JAVA_OPTS=-Xmx512m -Xms256m
+    volumes:
+      - ./src:/app/src
+      - ./pom.xml:/app/pom.xml
+      - maven-cache:/root/.m2
+      - ./target:/app/target
+    networks:
+      - gemini-network
+    profiles:
+      - test
+    command: mvn clean test
+    depends_on:
+      - gemini-chatbot-dev
+
+networks:
+  gemini-network:
+    driver: bridge
+    name: gemini-chatbot-network
+
+volumes:
+  maven-cache:
+    name: gemini-maven-cache
+    driver: local

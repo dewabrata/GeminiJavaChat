@@ -1,0 +1,48 @@
+# Development Dockerfile untuk Gemini Chatbot CLI
+# Optimized untuk development dengan hot-reload dan debugging
+
+FROM maven:3.9.6-eclipse-temurin-17-alpine
+
+# Install development tools
+RUN apk add --no-cache \
+    bash \
+    ncurses \
+    curl \
+    git \
+    vim \
+    && rm -rf /var/cache/apk/*
+
+# Create app user
+RUN addgroup -g 1001 -S appgroup && \
+    adduser -u 1001 -S appuser -G appgroup
+
+# Set working directory
+WORKDIR /app
+
+# Copy pom.xml dan download dependencies
+COPY pom.xml .
+RUN mvn dependency:go-offline -B
+
+# Create directories
+RUN mkdir -p /app/src /app/config /app/logs
+
+# Set ownership
+RUN chown -R appuser:appgroup /app
+
+# Switch to app user
+USER appuser
+
+# Environment variables untuk development
+ENV JAVA_OPTS="-Xmx1g -Xms512m -XX:+UseG1GC" \
+    APP_ENV="development" \
+    MAVEN_OPTS="-XX:+TieredCompilation -XX:TieredStopAtLevel=1" \
+    JAVA_TOOL_OPTIONS="-Dfile.encoding=UTF-8 -Dspring.profiles.active=dev"
+
+# Expose debug port untuk remote debugging
+EXPOSE 5005
+
+# Volume untuk source code (untuk hot reload)
+VOLUME ["/app/src", "/app/target", "/app/.env"]
+
+# Default command untuk development
+CMD ["mvn", "exec:java", "-Dexec.mainClass=com.juaracoding.cicd.Main", "-Dexec.args=-XX:+UseG1GC"]

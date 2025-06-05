@@ -1,0 +1,6 @@
+com\juaracoding\cicd\CommandProcessorTest.class
+com\juaracoding\cicd\config\ConfigTest.class
+com\juaracoding\cicd\config\EnvLoaderTest.class
+com\juaracoding\cicd\PersonaManagerTest.class
+com\juaracoding\cicd\GeminiClientTest.class
+com\juaracoding\cicd\models\ChatMessageTest.class
