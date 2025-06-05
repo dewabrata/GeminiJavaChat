@@ -1,0 +1,29 @@
+name: Create PR to SQA Branch
+
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  create-sqa-pull-request:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0 # Required for peter-evans/create-pull-request
+
+    - name: Create Pull Request to SQA
+      uses: peter-evans/create-pull-request@v6
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        commit-message: 'Automated: PR from develop to sqa'
+        title: 'Automated PR: New features from develop for SQA review'
+        body: |
+          This is an automated pull request from the `develop` branch to the `sqa` branch.
+          Please review and approve for SQA testing.
+        head: develop
+        base: sqa
+        branch: automated-pr-to-sqa-${{ github.run_id }}
+        delete-branch: true

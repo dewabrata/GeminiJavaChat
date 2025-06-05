@@ -1,0 +1,33 @@
+name: Deployment to Production
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production # Anda perlu mengkonfigurasi environment 'production' di GitHub
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: maven
+
+    - name: Build with Maven
+      run: mvn -B package --file pom.xml
+
+    - name: Deploy to production
+      run: |
+        # Ganti dengan perintah deployment Anda yang sebenarnya
+        echo "Simulating deployment to production environment..."
+        echo "Application built and ready for deployment."
+        # Contoh:
+        # scp target/your-app.jar user@your-production-server:/path/to/deploy
+        # ssh user@your-production-server "sudo systemctl restart your-app"

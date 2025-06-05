@@ -1,0 +1,35 @@
+name: Notify SQA on PR to SQA Branch
+
+on:
+  pull_request:
+    types: [opened, reopened]
+    branches:
+      - sqa
+
+jobs:
+  send-email-to-sqa:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Send email notification to SQA
+      uses: dawidd6/action-send-mail@v3
+      with:
+        server_address: smtp.gmail.com # Contoh, ganti dengan SMTP server Anda
+        server_port: 465 # Contoh, ganti dengan port SMTP server Anda
+        username: ${{ secrets.SMTP_USERNAME }}
+        password: ${{ secrets.SMTP_PASSWORD }}
+        subject: 'New Pull Request for SQA Review: ${{ github.event.pull_request.title }}'
+        body: |
+          Halo Tim SQA,
+
+          Ada Pull Request baru yang menunggu review Anda di branch `sqa`.
+
+          **Judul PR:** ${{ github.event.pull_request.title }}
+          **Link PR:** ${{ github.event.pull_request.html_url }}
+          **Dibuat oleh:** ${{ github.event.pull_request.user.login }}
+
+          Mohon segera lakukan review dan persetujuan.
+
+          Terima kasih,
+          GitHub Actions
+        to: dewabrata@gmail.com
+        from: GitHub Actions <no-reply@github.com> # Ganti jika Anda memiliki alamat pengirim spesifik
